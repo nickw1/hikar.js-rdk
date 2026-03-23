@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "noEmit" : true,
+        "strict" : true,
+        "target" : "esnext",
+        "moduleResolution" : "bundler",
+        "module" : "preserve",
+        "skipLibCheck" : true,
+        "esModuleInterop": true,
+        "jsx" : "preserve"
+    },
+    "files" : [ "./server.ts", "src/index.tsx" ]
+}

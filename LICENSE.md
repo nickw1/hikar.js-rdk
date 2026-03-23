@@ -1,0 +1,1 @@
+- The new, LocAR and RDK, version of hikar.js is licensed under the MIT license to be compatible with other code in the AR.js / RDK ecosystem. Code developed by myself and based on the original version (convered to TypeScript) has been relicensed from GPL to MIT.

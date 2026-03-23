@@ -1,0 +1,48 @@
+{
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@ar-js-org/ar.js": "^3.4.8",
+    "@ar-js-org/artoolkit5-js": "^0.3.2",
+    "@omnidotdev/rdk": "^0.9.1",
+    "@react-three/fiber": "^9.4.0",
+    "@react-three/xr": "^6.6.29",
+    "@turf/bearing": "^7.3.0",
+    "@turf/distance": "^7.3.0",
+    "@turf/explode": "^7.3.0",
+    "@turf/helpers": "^7.3.0",
+    "@types/express": "^5.0.6",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "axios": "^1.13.6",
+    "connect-pg-simple": "^10.0.0",
+    "express": "^5.1.0",
+    "jsfreemaplib": "^0.4.0",
+    "locar": "^0.1.8",
+    "locar-tiler": "^0.3.0",
+    "nice-color-palettes": "^4.0.0",
+    "pg": "^8.5.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tinyqueue": "^3.0.0",
+    "tsx": "^4.21.0",
+    "turf-point": "^2.0.1",
+    "typescript": "^5.9.3",
+    "vite-express": "^0.21.1"
+  },
+  "overrides": {
+    "@ar-js-org/artoolkit5-js": {
+      "axios": "^1.13.6"
+    },
+    "three-bmfont-text": {
+      "nice-color-palettes": "^4.0.0"
+    }
+  },
+  "scripts": {
+    "dev": "tsc && tsx watch server.ts",
+    "build": "npx vite build",
+    "start": "NODE_ENV=production tsx server.ts"
+  }
+}

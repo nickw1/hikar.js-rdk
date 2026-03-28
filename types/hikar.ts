@@ -1,3 +1,4 @@
+import { LonLat } from 'locar-tiler';
 
 export interface PointGeometry {
     coordinates: [number,number] | [number,number,number];
@@ -34,3 +35,35 @@ export interface LayerData {
 }
 
 export type LayerKey = keyof LayerData;
+
+export interface OsmEntity {
+    id: string;
+    name: string;
+    type: string;
+}
+
+export interface Poi extends OsmEntity {
+    position: LonLat;
+    altitude: number;
+}
+
+export interface Way extends OsmEntity {
+    coordinates: Array<[number, number, number?]>;
+}
+
+export interface GeoState {
+    pois: Array<Poi>;
+    ways: Array<Way>;
+    elev: number;
+    
+}
+
+export interface GpsStatus {
+    pos: GeolocationPosition;
+    distMoved: number;
+};
+
+export interface GeoDataRendererProps {
+    geoState: GeoState;
+}
+

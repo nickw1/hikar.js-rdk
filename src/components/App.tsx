@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { XR, GeolocationSession, GeolocationAnchor } from '@omnidotdev/rdk';
+import { XR, GeolocationSession, GeolocationAnchor, useGeolocationBackend } from '@omnidotdev/rdk';
 import { Canvas } from '@react-three/fiber';
 import * as LT from 'locar-tiler';
 import GeoDataRenderer from './GeoDataRenderer';
-import { FeatureCollection, GeoState } from '../../types/hikar';
+import { FeatureCollection, GeoState, LineGeometry } from '../../types/hikar';
 
 export default function App() {
 
@@ -12,6 +12,7 @@ export default function App() {
     const START_POS = { lat: 51.05, lon: -0.72 };
     const demApplier = useRef<LT.DemApplier | null>(null);
     const [geoState, setGeoState] = useState<GeoState>({ pois: [], ways: [], elev: 0});
+    const { locar } = useGeolocationBackend();
    
      useEffect(() => {
         const demTiler = new LT.DemTiler("/dem/{z}/{x}/{y}.png"), jsonTiler = new LT.JsonTiler("/map/{z}/{x}/{y}.json?layers=poi,ways&outProj=4326");
@@ -41,14 +42,12 @@ export default function App() {
     async function onPosUpdated(pos: LT.LonLat) {
         if(demApplier.current === null) return;
         const lonLat =  new LT.LonLat(pos.lon, pos.lat);
-        console.log(`lon, lat: ${pos.lon} ${pos.lat}`)
         const newData = await demApplier.current.updateByLonLat(
             lonLat
         );
         const elev = demApplier.current.demTiler.getElevationFromLonLat(lonLat) ?? 0;
-        console.log(`elev is: ${elev}`);
           
-        const allPois = [];
+        const allPois = [], allWays = [];
         for(let tile of newData) {
             for(let poiData of (tile.data as FeatureCollection).features) {
                 switch(poiData.geometry.type) {
@@ -65,13 +64,28 @@ export default function App() {
                         });
                         break;
                     case "LineString":
+                         if(poiData.properties.access !== "private") {
+                            const way = {
+                                name: poiData.properties.name || "",
+                                type: poiData.properties.designation || poiData.properties.highway,
+                                id: `${tile.tile.x}:${tile.tile.y}:${poiData.properties.osm_id}`, // ways can duplicate across tiles so include tile x and y in the ID
+                                coordinates:  (poiData.geometry as LineGeometry).coordinates.map(
+                                    (lonLat: [number, number, number?]) : [number, number, number] => {
+                                        return [lonLat[0],  lonLat[1],  lonLat[2] || 0];
+                                    })
+                            };
+                            if(way.coordinates.length >= 2) {
+                                console.log(way.coordinates);
+                                allWays.push(way);
+                            }
+                        }
                         break;
                     default:
                         break;
                 }
             }
         }   
-        setGeoState({pois: allPois, ways: [], elev});
+        setGeoState({pois: allPois, ways: allWays, elev});
     }
 }
 

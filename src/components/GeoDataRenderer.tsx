@@ -1,20 +1,33 @@
 import React, { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import { GeoDataRendererProps} from '../../types/hikar';
-import { GeolocationAnchor } from '@omnidotdev/rdk';
+import { GeolocationAnchor, GeoLine } from '@omnidotdev/rdk';
+
+
+const wayColours = new Map<string,string>([
+    ["footway" , "green"],
+    ["path" , "green"],
+    ["bridleway", "brown"],
+    ["byway" , "red"],
+    ["cycleway", "blue"],
+    ["public_footpath", "green"],
+    ["public_bridleway" , "brown"],
+    ["byway_open_to_all_traffic","red"],
+    ["restricted_byway","magenta"]
+]);
+    
 
 export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
   
     const { camera } = useThree();
  
     useEffect(() => {
-        camera.position.setY(geoState.elev);
+        camera.position.setY(geoState.elev + 50); // aerial view for now for demo purposes
     }, [geoState.elev]);
 
     return (
         <>
         { geoState.pois.map(poi =>  {
-            console.log(`map: POI lon ${poi.position.lon} lat ${poi.position.lat} alt =${poi.altitude}`)
             return (
                 <GeolocationAnchor key={`p${poi.id}`} latitude={poi.position.lat} longitude={poi.position.lon} altitude={poi.altitude}>
                     <mesh scale={1}>
@@ -22,7 +35,13 @@ export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
                         <meshStandardMaterial color="blue" />
                     </mesh>
                 </GeolocationAnchor>
-         )} ) }
+            )
+         })}
+         { geoState.ways.map(way => {
+            return(
+                <GeoLine key={`w${way.id}`} coordinates={way.coordinates} color={wayColours.get(way.type) || 'lightgray'} lineWidth={5} />
+            )
+         })}
         </>
     )
 

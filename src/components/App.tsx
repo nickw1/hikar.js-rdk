@@ -23,8 +23,8 @@ export default function App() {
         <ambientLight intensity={1.0} />
         <directionalLight position={[10, 10, 10]} intensity={2} />
         <XR>
-        <GeolocationSession options={{ fakeLat: START_POS.lat, fakeLon: START_POS.lon, onGpsUpdate: (pos, distMoved) => {
-            onPosUpdated({lat: pos.coords.latitude, lon: pos.coords.longitude});
+        <GeolocationSession options={{ /*fakeLat: START_POS.lat, fakeLon: START_POS.lon,*/ onGpsUpdate: (pos, distMoved) => {
+            onPosUpdated({lat: pos.coords.latitude, lon: pos.coords.longitude}, distMoved);
         }}}>
         <GeolocationAnchor
             latitude={START_POS.lat + 0.0005} 
@@ -39,20 +39,21 @@ export default function App() {
         </XR>
         </Canvas>;
 
-    async function onPosUpdated(pos: LT.LonLat) {
-        if(demApplier.current === null) return;
+    async function onPosUpdated(pos: LT.LonLat, distMoved: number) {
+        console.log(`onPosUpdated(): ${pos.lon} ${pos.lat} distMoved ${distMoved}`);
+        if(demApplier.current === null || distMoved == 0) return;
         const lonLat =  new LT.LonLat(pos.lon, pos.lat);
         const newData = await demApplier.current.updateByLonLat(
             lonLat
         );
         const elev = demApplier.current.demTiler.getElevationFromLonLat(lonLat) ?? 0;
-          
-        const allPois = [], allWays = [];
+        console.log(`elev: ${elev}`);
+        const newPois = [], newWays = [];
         for(let tile of newData) {
             for(let poiData of (tile.data as FeatureCollection).features) {
                 switch(poiData.geometry.type) {
                     case "Point":
-                        allPois.push({
+                        newPois.push({
                             position: new LT.LonLat(
                                 poiData.geometry.coordinates[0],
                                 poiData.geometry.coordinates[1],
@@ -75,8 +76,7 @@ export default function App() {
                                     })
                             };
                             if(way.coordinates.length >= 2) {
-                                console.log(way.coordinates);
-                                allWays.push(way);
+                                newWays.push(way);
                             }
                         }
                         break;
@@ -85,7 +85,9 @@ export default function App() {
                 }
             }
         }   
-        setGeoState({pois: allPois, ways: allWays, elev});
+        console.log(`pois: ${JSON.stringify(newPois)} `);
+        console.log(`ways: ${JSON.stringify(newWays)} `);
+        setGeoState({pois: [...geoState.pois, ...newPois], ways: [...geoState.ways, ...newWays], elev});
     }
 }
 

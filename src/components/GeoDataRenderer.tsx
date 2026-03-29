@@ -22,6 +22,7 @@ export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
     const { camera } = useThree();
  
     useEffect(() => {
+        console.log(`Setting elev to ${geoState.elev}`)
         camera.position.setY(geoState.elev + 50); // aerial view for now for demo purposes
     }, [geoState.elev]);
 

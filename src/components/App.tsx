@@ -3,16 +3,16 @@ import { XR, GeolocationSession, GeolocationAnchor, useGeolocationBackend } from
 import { Canvas } from '@react-three/fiber';
 import * as LT from 'locar-tiler';
 import GeoDataRenderer from './GeoDataRenderer';
-import { FeatureCollection, GeoState, LineGeometry } from '../../types/hikar';
+import { FeatureCollection, LineGeometry } from '../../types/hikar';
+import { useStore } from '../../hooks/store';
 
 export default function App() {
 
-    console.log("render");
+    console.log("render: zustand version");
     
     const START_POS = { lat: 51.05, lon: -0.72 };
     const demApplier = useRef<LT.DemApplier | null>(null);
-    const [geoState, setGeoState] = useState<GeoState>({ pois: [], ways: [], elev: 0});
-    const { locar } = useGeolocationBackend();
+    const { addPoi, addWay, setElev } = useStore();
    
      useEffect(() => {
         const demTiler = new LT.DemTiler("/dem/{z}/{x}/{y}.png"), jsonTiler = new LT.JsonTiler("/map/{z}/{x}/{y}.json?layers=poi,ways&outProj=4326");
@@ -34,7 +34,7 @@ export default function App() {
         <meshStandardMaterial color="red" />
         </mesh>
         </GeolocationAnchor>
-        <GeoDataRenderer geoState={geoState} />
+        <GeoDataRenderer  />
         </GeolocationSession>
         </XR>
         </Canvas>;
@@ -48,12 +48,12 @@ export default function App() {
         );
         const elev = demApplier.current.demTiler.getElevationFromLonLat(lonLat) ?? 0;
         console.log(`elev: ${elev}`);
-        const newPois = [], newWays = [];
+        setElev(elev);
         for(let tile of newData) {
             for(let poiData of (tile.data as FeatureCollection).features) {
                 switch(poiData.geometry.type) {
                     case "Point":
-                        newPois.push({
+                        addPoi({
                             position: new LT.LonLat(
                                 poiData.geometry.coordinates[0],
                                 poiData.geometry.coordinates[1],
@@ -76,7 +76,7 @@ export default function App() {
                                     })
                             };
                             if(way.coordinates.length >= 2) {
-                                newWays.push(way);
+                                addWay(way);
                             }
                         }
                         break;
@@ -85,10 +85,5 @@ export default function App() {
                 }
             }
         }   
-        console.log(`pois: ${JSON.stringify(newPois)} `);
-        console.log(`ways: ${JSON.stringify(newWays)} `);
-        setGeoState({pois: [...geoState.pois, ...newPois], ways: [...geoState.ways, ...newWays], elev});
     }
 }
-
-

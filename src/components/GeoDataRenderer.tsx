@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
-import { GeoDataRendererProps} from '../../types/hikar';
 import { GeolocationAnchor, GeoLine } from '@omnidotdev/rdk';
+import { useStore } from '../../hooks/store';
 
 
 const wayColours = new Map<string,string>([
@@ -17,18 +17,20 @@ const wayColours = new Map<string,string>([
 ]);
     
 
-export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
+//export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
+export default function PoiRenderer() {
   
     const { camera } = useThree();
+    const { pois, ways, elev } = useStore();
  
     useEffect(() => {
-        console.log(`Setting elev to ${geoState.elev}`)
-        camera.position.setY(geoState.elev + 50); // aerial view for now for demo purposes
-    }, [geoState.elev]);
+        console.log(`Setting elev to ${elev}`)
+        camera.position.setY(elev + 50); // aerial view for now for demo purposes
+    }, [elev]);
 
     return (
         <>
-        { geoState.pois.map(poi =>  {
+        { pois.map(poi =>  {
             return (
                 <GeolocationAnchor key={`p${poi.id}`} latitude={poi.position.lat} longitude={poi.position.lon} altitude={poi.altitude}>
                     <mesh scale={1}>
@@ -38,7 +40,7 @@ export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
                 </GeolocationAnchor>
             )
          })}
-         { geoState.ways.map(way => {
+         { ways.map(way => {
             return(
                 <GeoLine key={`w${way.id}`} coordinates={way.coordinates} color={wayColours.get(way.type) || 'lightgray'} lineWidth={5} />
             )

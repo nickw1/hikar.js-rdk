@@ -63,7 +63,12 @@ export interface GpsStatus {
     distMoved: number;
 };
 
-export interface GeoDataRendererProps {
-    geoState: GeoState;
-}
 
+export interface PoiState {
+    pois: Array<Poi>;
+    ways: Array<Way>;
+    elev: number;
+    addPoi: (poi: Poi) => void;
+    addWay: (way: Way) => void;
+    setElev: (newElev: number) => void;
+}

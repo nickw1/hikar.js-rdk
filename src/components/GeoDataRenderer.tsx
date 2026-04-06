@@ -1,48 +1,60 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import { GeolocationAnchor, GeoLine } from '@omnidotdev/rdk';
 import { useStore } from '../../hooks/store';
+import Cup from './basicModels/Cup';
+import Glass from './basicModels/Glass';
+import Marker from './basicModels/Marker';
 
-
-const wayColours = new Map<string,string>([
-    ["footway" , "green"],
-    ["path" , "green"],
-    ["bridleway", "brown"],
-    ["byway" , "red"],
-    ["cycleway", "blue"],
-    ["public_footpath", "green"],
-    ["public_bridleway" , "brown"],
-    ["byway_open_to_all_traffic","red"],
-    ["restricted_byway","magenta"]
-]);
     
 
-//export default function PoiRenderer({ geoState } : GeoDataRendererProps) {
 export default function PoiRenderer() {
   
     const { camera } = useThree();
     const { pois, ways, elev } = useStore();
- 
+    const wayColours = useRef<Map<string, string>>(new Map());
+
+
     useEffect(() => {
+        if(wayColours.current.size == 0) {
+            wayColours.current.set("footway", "green");
+            wayColours.current.set("path", "green");
+            wayColours.current.set("bublic_footpath", "green");
+            wayColours.current.set("bridleway", "#aa5500");
+            wayColours.current.set("public_bridleway", "#aa5500");
+            wayColours.current.set("byway", "red");
+            wayColours.current.set("byway_open_to_all_traffic", "red");
+            wayColours.current.set("restricted_byway", "magenta");
+            wayColours.current.set("cycleway", "blue");
+        }
         console.log(`Setting elev to ${elev}`)
-        camera.position.setY(elev + 50); // aerial view for now for demo purposes
+        camera.position.setY(elev + 10); // aerial view for now for demo purposes
     }, [elev]);
 
     return (
         <>
         { pois.map(poi =>  {
+            let element = <></>;
+            switch(poi.type) {
+                case "pub":
+                case "bar":
+                    element = <Glass />;
+                    break;
+                case "cafe":
+                    element = <Cup />;
+                    break;
+                default:
+                    element = <Marker />;
+            }
             return (
                 <GeolocationAnchor key={`p${poi.id}`} latitude={poi.position.lat} longitude={poi.position.lon} altitude={poi.altitude}>
-                    <mesh scale={1}>
-                        <boxGeometry args={[10, 10, 10]} />
-                        <meshStandardMaterial color="blue" />
-                    </mesh>
+                   { element }
                 </GeolocationAnchor>
             )
          })}
          { ways.map(way => {
             return(
-                <GeoLine key={`w${way.id}`} coordinates={way.coordinates} color={wayColours.get(way.type) || 'lightgray'} lineWidth={5} />
+                <GeoLine key={`w${way.id}`} coordinates={way.coordinates} color={wayColours.current.get(way.type) || 'lightgray'} lineWidth={5} />
             )
          })}
         </>

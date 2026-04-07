@@ -5,6 +5,7 @@ import { useStore } from '../../hooks/store';
 import Cup from './basicModels/Cup';
 import Glass from './basicModels/Glass';
 import Marker from './basicModels/Marker';
+import { Text } from '@react-three/drei';
 
     
 
@@ -46,11 +47,13 @@ export default function PoiRenderer() {
                 default:
                     element = <Marker />;
             }
-            return (
+                
+            return ( poi.name ? 
                 <GeolocationAnchor key={`p${poi.id}`} latitude={poi.position.lat} longitude={poi.position.lon} altitude={poi.altitude}>
                    { element }
-                </GeolocationAnchor>
-            )
+                   <Text position={[0, -1, 0]} scale={5} font="https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff" color="white" anchorX="center" anchorY="middle">{poi.name}</Text>
+                </GeolocationAnchor> : <></>
+                );
          })}
          { ways.map(way => {
             return(

@@ -7,6 +7,7 @@
     "@ar-js-org/ar.js": "^3.4.8",
     "@ar-js-org/artoolkit5-js": "^0.3.2",
     "@omnidotdev/rdk": "^0.10.0",
+    "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.0",
     "@react-three/xr": "^6.6.29",
     "@turf/bearing": "^7.3.0",

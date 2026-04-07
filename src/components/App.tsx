@@ -8,7 +8,7 @@ import { useStore } from '../../hooks/store';
 
 export default function App() {
 
-    const START_POS = { lat: 51.05, lon: -0.72 };
+    const START_POS = { lat: 50.9, lon: -1.4 };
     const demApplier = useRef<LT.DemApplier | null>(null);
     const { addPoi, addWay, setElev } = useStore();
    
@@ -60,7 +60,7 @@ export default function App() {
                     case "LineString":
                          if(poiData.properties.access !== "private") {
                             const way = {
-                                name: poiData.properties.name || "",
+                                name: poiData.properties.name || null,
                                 type: poiData.properties.designation || poiData.properties.highway,
                                 id: `${tile.tile.x}:${tile.tile.y}:${poiData.properties.osm_id}`, // ways can duplicate across tiles so include tile x and y in the ID
                                 coordinates:  (poiData.geometry as LineGeometry).coordinates.map(

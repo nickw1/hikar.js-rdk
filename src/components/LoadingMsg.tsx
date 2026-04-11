@@ -1,5 +1,9 @@
 
-export default function LoadingMsg() {
+interface LoadingMsgProps {
+    message: string;
+}
+
+export default function LoadingMsg({ message } : LoadingMsgProps) {
     return(
         <div style={{
             height: '100%', 
@@ -9,7 +13,7 @@ export default function LoadingMsg() {
             alignItems: 'center', 
             fontSize: '200%'
         }}>
-            <h1 style={{ backgroundColor: 'white', color: 'black'}}>Loading scene...</h1>
+            <h1 style={{ backgroundColor: 'white', color: 'black'}}>{ message || "Loading scene..." }</h1>
         </div>
     )
 }

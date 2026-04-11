@@ -1,15 +1,18 @@
 import express from 'express';
 import ViteExpress from 'vite-express';
-import map from './routes/map';
 import { loadEnvFile } from 'node:process';
 import fetch from 'node-fetch';
 import fs from 'node:fs';
+import MapModel from './models/map';
+import db from './db';
+import { Tile } from 'locar-tiler'; 
+import { LayerKey } from './types/hikar'
+
+const mapModel = new MapModel(db);
 
 const app = express();
 loadEnvFile();
 
-
-app.use('/map', map);
 
 // Get local DEM tiles
 app.get('/dem/:z/:x/:y.png', async(req, res) => {
@@ -50,6 +53,33 @@ app.get('/dem/aws/:z/:x/:y.png', async(req, res) => {
 });
 
 
+// Fake the (very) old endpoint - necessary for the Hikar app to keep working
+app.get(['/map/:z/:x/:y.json', '/fm/ws/tsvr.php'], async (req, res) => {
+    try {
+        const regex = /^\d+$/;
+        const x = (req.params.x || req.query.x) as string,
+              y = (req.params.y || req.query.y) as string,
+              z = (req.params.z || req.query.z) as string;
+
+        if(regex.exec(x) && regex.exec(y) && regex.exec(z)) {
+            const mapData = await mapModel.getMap(
+                new Tile(
+                    parseInt(x),
+                    parseInt(y),
+                    parseInt(z)
+                ),
+                req.query?.layers ? (req.query.layers as string).split(",") as Array<LayerKey> : new Array<LayerKey>('ways', 'poi'), 
+                req.query?.outProj ? (req.query.outProj as string): null
+            );
+
+            res.json(mapData);
+        } else {
+            res.status(500).json({"error": "x,y,z need to be numbers"});
+        }
+    } catch(e: any) {
+        res.status(500).json(e);
+    }    
+});
 const PORT = 3001;
 
 

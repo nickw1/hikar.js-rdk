@@ -12,6 +12,7 @@ export default function App() {
     const START_POS = { lat: 50.9, lon: -1.4 };
     const demApplier = useRef<LT.DemApplier | null>(null);
     const { addPoi, addWay, setElev } = useStore();
+  
    
      useEffect(() => {
         const demTiler = new LT.DemTiler("/dem/{z}/{x}/{y}.png"), jsonTiler = new LT.JsonTiler("/map/{z}/{x}/{y}.json?layers=poi,ways&outProj=4326");
@@ -19,7 +20,8 @@ export default function App() {
     }, []);
     
     return (
-        <Suspense fallback={<LoadingMsg />}>
+       
+        <Suspense fallback={<LoadingMsg message="Rendering data..."/>}>
             <Canvas gl={{antialias: false, powerPreference: "default"}}>
                 <ambientLight intensity={1.0} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
@@ -33,12 +35,14 @@ export default function App() {
                 </XR>
             </Canvas>
         </Suspense>
+       
     );
 
     async function onPosUpdated(pos: LT.LonLat, distMoved: number) {
         console.log(`onPosUpdated(): ${pos.lon} ${pos.lat} distMoved ${distMoved}`);
         if(demApplier.current === null || distMoved == 0) return;
         const lonLat =  new LT.LonLat(pos.lon, pos.lat);
+       
         const newData = await demApplier.current.updateByLonLat(
             lonLat
         );
@@ -81,5 +85,6 @@ export default function App() {
                 }
             }
         }   
+       
     }
 }

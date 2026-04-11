@@ -9,7 +9,7 @@ import { Text } from '@react-three/drei';
 
     
 
-export default function PoiRenderer() {
+export default function GeoDataRenderer() {
   
     const { camera } = useThree();
     const { pois, ways, elev } = useStore();

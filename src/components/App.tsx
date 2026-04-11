@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, Suspense } from 'react';
 import { XR, GeolocationSession } from '@omnidotdev/rdk';
 import { Canvas } from '@react-three/fiber';
 import * as LT from 'locar-tiler';
 import GeoDataRenderer from './GeoDataRenderer';
+import LoadingMsg from './LoadingMsg';
 import { FeatureCollection, LineGeometry } from '../../types/hikar';
 import { useStore } from '../../hooks/store';
 
@@ -18,18 +19,20 @@ export default function App() {
     }, []);
     
     return (
-        <Canvas gl={{antialias: false, powerPreference: "default"}}>
-            <ambientLight intensity={1.0} />
-            <directionalLight position={[10, 10, 10]} intensity={2} />
-            <XR>
-                <GeolocationSession options={{ fakeLat: START_POS.lat, fakeLon: START_POS.lon,
-                    onGpsUpdate: (pos, distMoved) => {
-                        onPosUpdated({lat: pos.coords.latitude, lon: pos.coords.longitude}, distMoved);
-                }}}>
-                    <GeoDataRenderer />
-                </GeolocationSession>
-            </XR>
-        </Canvas>
+        <Suspense fallback={<LoadingMsg />}>
+            <Canvas gl={{antialias: false, powerPreference: "default"}}>
+                <ambientLight intensity={1.0} />
+                <directionalLight position={[10, 10, 10]} intensity={2} />
+                <XR>
+                    <GeolocationSession options={{ fakeLat: START_POS.lat, fakeLon: START_POS.lon,
+                        onGpsUpdate: (pos, distMoved) => {
+                            onPosUpdated({lat: pos.coords.latitude, lon: pos.coords.longitude}, distMoved);
+                    }}}>
+                        <GeoDataRenderer />
+                    </GeolocationSession>
+                </XR>
+            </Canvas>
+        </Suspense>
     );
 
     async function onPosUpdated(pos: LT.LonLat, distMoved: number) {

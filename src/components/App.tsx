@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { XR, GeolocationSession } from '@omnidotdev/rdk';
 import { Canvas } from '@react-three/fiber';
 import * as LT from 'locar-tiler';
@@ -12,7 +12,7 @@ export default function App() {
     const START_POS = { lat: 50.9, lon: -1.4 };
     const demApplier = useRef<LT.DemApplier | null>(null);
     const { addPoi, addWay, setElev } = useStore();
-  
+    const [ status, setStatus ] = useState("");
    
      useEffect(() => {
         const demTiler = new LT.DemTiler("/dem/{z}/{x}/{y}.png"), jsonTiler = new LT.JsonTiler("/map/{z}/{x}/{y}.json?layers=poi,ways&outProj=4326");
@@ -20,13 +20,13 @@ export default function App() {
     }, []);
     
     return (
-       
+        status == "" ?
         <Suspense fallback={<LoadingMsg message="Rendering data..."/>}>
             <Canvas gl={{antialias: false, powerPreference: "default"}}>
                 <ambientLight intensity={1.0} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
                 <XR>
-                    <GeolocationSession options={{ fakeLat: START_POS.lat, fakeLon: START_POS.lon,
+                    <GeolocationSession options={{ /*fakeLat: START_POS.lat, fakeLon: START_POS.lon,*/
                         onGpsUpdate: (pos, distMoved) => {
                             onPosUpdated({lat: pos.coords.latitude, lon: pos.coords.longitude}, distMoved);
                     }}}>
@@ -35,14 +35,15 @@ export default function App() {
                 </XR>
             </Canvas>
         </Suspense>
-       
+        :
+        <LoadingMsg message={status} />
     );
 
     async function onPosUpdated(pos: LT.LonLat, distMoved: number) {
         console.log(`onPosUpdated(): ${pos.lon} ${pos.lat} distMoved ${distMoved}`);
         if(demApplier.current === null || distMoved == 0) return;
         const lonLat =  new LT.LonLat(pos.lon, pos.lat);
-       
+        setStatus("Downloading data...");
         const newData = await demApplier.current.updateByLonLat(
             lonLat
         );
@@ -85,6 +86,6 @@ export default function App() {
                 }
             }
         }   
-       
+        setStatus("");
     }
 }

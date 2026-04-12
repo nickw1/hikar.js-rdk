@@ -11,9 +11,11 @@ export default function LoadingMsg({ message } : LoadingMsgProps) {
             flexDirection: 'column', 
             justifyContent: 'center', 
             alignItems: 'center', 
-            fontSize: '200%'
+            fontSize: '200%',
+            backgroundColor: '#c0c0ff',
+            color: 'white'
         }}>
-            <h1 style={{ backgroundColor: 'white', color: 'black'}}>{ message || "Loading scene..." }</h1>
+            <h1>{ message  }</h1>
         </div>
     )
 }

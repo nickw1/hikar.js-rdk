@@ -22,7 +22,14 @@ export default function App() {
     return ( <>
         { status != "" ? <LoadingMsg message={status} /> : "" }
         <Suspense fallback={<LoadingMsg message="Rendering data..."/>}>
-            <Canvas gl={{antialias: false, powerPreference: "default"}}>
+            <Canvas gl={{antialias: false, powerPreference: "default"}} style={{
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                top: "0px",
+                left: "0px",
+                zIndex: 1
+            }}>
                 <ambientLight intensity={1.0} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
                 <XR>

@@ -12,10 +12,10 @@ export default function LoadingMsg({ message } : LoadingMsgProps) {
             justifyContent: 'center', 
             alignItems: 'center', 
             fontSize: '200%',
-            backgroundColor: '#c0c0ff',
-            color: 'white'
+            backgroundColor: 'rgba(255, 255, 255, 0)'
+        
         }}>
-            <h1>{ message  }</h1>
+            <h1 style={{ color: 'rgba(192, 192, 255, 1)' }}>{ message }</h1>
         </div>
     )
 }

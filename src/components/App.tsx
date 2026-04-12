@@ -12,15 +12,15 @@ export default function App() {
     const START_POS = { lat: 50.9, lon: -1.4 };
     const demApplier = useRef<LT.DemApplier | null>(null);
     const { addPoi, addWay, setElev } = useStore();
-    const [ status, setStatus ] = useState("");
+    const [ status, setStatus ] = useState("Waiting for GPS...");
    
      useEffect(() => {
         const demTiler = new LT.DemTiler("/dem/{z}/{x}/{y}.png"), jsonTiler = new LT.JsonTiler("/map/{z}/{x}/{y}.json?layers=poi,ways&outProj=4326");
         demApplier.current = new LT.DemApplier(demTiler, jsonTiler);
     }, []);
     
-    return (
-        status == "" ?
+    return ( <>
+        { status != "" ? <LoadingMsg message={status} /> : "" }
         <Suspense fallback={<LoadingMsg message="Rendering data..."/>}>
             <Canvas gl={{antialias: false, powerPreference: "default"}}>
                 <ambientLight intensity={1.0} />
@@ -35,8 +35,7 @@ export default function App() {
                 </XR>
             </Canvas>
         </Suspense>
-        :
-        <LoadingMsg message={status} />
+       </>
     );
 
     async function onPosUpdated(pos: LT.LonLat, distMoved: number) {

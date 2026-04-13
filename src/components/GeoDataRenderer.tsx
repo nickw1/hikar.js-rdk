@@ -29,7 +29,7 @@ export default function GeoDataRenderer() {
             wayColours.current.set("cycleway", "blue");
         }
         console.log(`Setting elev to ${elev}`)
-        camera.position.setY(elev + 10); // aerial view for now for demo purposes
+        camera.position.setY(elev + 2); 
     }, [elev]);
 
     return (
